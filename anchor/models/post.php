@@ -45,6 +45,37 @@ class Post extends Base {
 		return array($total, $posts);
 	}
 
+  public static function find_by_categories($categories, $page = 1, $per_page = 10) {
+    // get total
+    $categories = addslashes($categories);
+    if($categories == ''){
+      $categories = array();
+    }else{
+      $categories = explode(',', $categories);
+    }
+    $query = static::left_join(Base::table('users'), Base::table('users.id'), '=', Base::table('posts.author'))
+      ->where(Base::table('posts.status'), '=', 'published');
+
+    // 0 = display all categories
+    if(! in_array(0, $categories)){
+      $query->and_where_in(Base::table('posts.category'), $categories);
+    }
+
+//    print_r($query); die();
+    $total = $query->count();
+
+    // get posts
+    $posts = $query->sort(Base::table('posts.created'), 'desc')
+      ->take($per_page)
+      ->skip(--$page * $per_page)
+      ->get(array(Base::table('posts.*'),
+        Base::table('users.id as author_id'),
+        Base::table('users.bio as author_bio'),
+        Base::table('users.real_name as author_name')));
+
+    return array($total, $posts);
+  }
+
 	public static function search($term, $page = 1, $per_page = 10) {
 		$query = static::left_join(Base::table('users'), Base::table('users.id'), '=', Base::table('posts.author'))
 			->where(Base::table('posts.status'), '=', 'published')

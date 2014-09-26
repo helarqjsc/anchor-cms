@@ -161,10 +161,34 @@ class Form {
 		return static::input('image', $name, null, $attributes);
 	}
 
-	public static function button($value = null, $attributes = array()) {
-		if( ! isset($attributes['type'])) $attributes['type'] = 'button';
+  public static function button($value = null, $attributes = array()) {
+    if( ! isset($attributes['type'])) $attributes['type'] = 'button';
 
-		return Html::element('button', Html::entities($value), $attributes);
-	}
+    return Html::element('button', Html::entities($value), $attributes);
+  }
+
+  public static function allowed_categories($allowed_categories) {
+    if($allowed_categories == ''){ //because explode() doesn't give an empty array on an empty string
+      $categories = array();
+    }else{
+      $categories = explode(',', $allowed_categories);
+    }
+    $cat_all_checked = in_array(0, $categories);
+    $name = 'allowed_categories[0]';
+    $html = static::checkable('checkbox', $name, 1, $cat_all_checked, array('id' => $name, 'autocomplete' => 'off')) .
+          '<label for="' . $name . '" class="allowed_categories_label">All</label>' .
+          '<div class="clear"></div>';
+
+    foreach(Category::get() as $cat){
+      $name = 'allowed_categories[' . $cat->id . ']';
+      $checked = in_array($cat->id, $categories);
+      $html .= static::checkable('checkbox', $name, 1, $checked, array('id' => $name, 'autocomplete' => 'off')) .
+        '<label for="' . $name . '" class="allowed_categories_label">' . $cat->title . '</label>' .
+        '<div class="clear"></div>';
+    }
+    $html = '<div class="allowed_categories_wrap">' . $html . '</div';
+    return $html;
+  }
+
 
 }

@@ -128,6 +128,7 @@ h1 {
 			.items li h1 a, .posts .items > li:first-child h2 a {
 				color: #3d4551;
 			}
+
 	.items h1 {
 		padding: 0 0 8px;
 	}
@@ -327,3 +328,13 @@ ul.commentlist {
 		#bottom a {
 			text-decoration: none;
 		}
+
+
+/* Walt's fixes */
+.main-wrap .items > li:first-child {
+	background: #fff !important;
+	padding: 110px 0;
+}
+.main-wrap .items > li:first-child h2 a {
+	color: #3d4551;
+}
