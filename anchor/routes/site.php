@@ -10,14 +10,38 @@ $posts_page = Registry::get('posts_page');
  * The Home page
  */
 if($home_page->id != $posts_page->id) {
-	Route::get(array('/', $home_page->slug), function() use($home_page) {
+	Route::get(array('/', $home_page->slug . '/(:num)', $home_page->slug), function($offset = 1) use($home_page) {
     if($home_page->redirect) {
       return Response::redirect($home_page->redirect);
     }
 
-		Registry::set('page', $home_page);
+    if($home_page->display_posts == 0 || $home_page->allowed_categories == ''){
+      Registry::set('page', $home_page);
+      return new Template('page');
+    } else {
+      if($offset > 0) {
+        list($total, $posts) = Post::find_by_categories($home_page->allowed_categories, $offset, $per_page = Config::meta('posts_per_page'));
+      } else {
+        return Response::create(new Template('404'), 404);
+      }
 
-		return new Template('page');
+      // get the last page
+      $max_page = ($total > $per_page) ? ceil($total / $per_page) : 1;
+
+      // stop users browsing to non existing ranges
+      if(($offset > $max_page) or ($offset < 1)) {
+        return Response::create(new Template('404'), 404);
+      }
+
+      $posts = new Items($posts);
+
+      Registry::set('posts', $posts);
+      Registry::set('total_posts', $total);
+      Registry::set('page', $home_page);
+      Registry::set('page_offset', $offset);
+
+      return new Template('posts');
+    }
 	});
 }
 
@@ -31,29 +55,34 @@ if($home_page->id == $posts_page->id) {
 }
 
 Route::get($routes, function($offset = 1) use($posts_page) {
-	if($offset > 0) {
-		// get public listings
-		list($total, $posts) = Post::listing(null, $offset, $per_page = Config::meta('posts_per_page'));
-	} else {
-		return Response::create(new Template('404'), 404);
-	}
+  if($posts_page->display_posts == 0 || $posts_page->allowed_categories == ''){
+    Registry::set('page', $posts_page);
+    return new Template('page');
+  } else {
+    if($offset > 0) {
+      // get public listings
+      list($total, $posts) = Post::find_by_categories($posts_page->allowed_categories, $offset, $per_page = Config::meta('posts_per_page'));
+    } else {
+      return Response::create(new Template('404'), 404);
+    }
 
-	// get the last page
-	$max_page = ($total > $per_page) ? ceil($total / $per_page) : 1;
+    // get the last page
+    $max_page = ($total > $per_page) ? ceil($total / $per_page) : 1;
 
-	// stop users browsing to non existing ranges
-	if(($offset > $max_page) or ($offset < 1)) {
-		return Response::create(new Template('404'), 404);
-	}
+    // stop users browsing to non existing ranges
+    if(($offset > $max_page) or ($offset < 1)) {
+      return Response::create(new Template('404'), 404);
+    }
 
-	$posts = new Items($posts);
+    $posts = new Items($posts);
 
-	Registry::set('posts', $posts);
-	Registry::set('total_posts', $total);
-	Registry::set('page', $posts_page);
-	Registry::set('page_offset', $offset);
+    Registry::set('posts', $posts);
+    Registry::set('total_posts', $total);
+    Registry::set('page', $posts_page);
+    Registry::set('page_offset', $offset);
 
-	return new Template('posts');
+    return new Template('posts');
+  }
 });
 
 /**
@@ -250,7 +279,7 @@ Route::post('search', function() {
 /**
  * View pages
  */
-Route::get('(:all)', function($uri) {
+Route::get(array('(:all)/(:num)', '(:all)'), function($uri, $offset = 1) {
 	if( ! $page = Page::slug($slug = basename($uri))) {
 		return Response::create(new Template('404'), 404);
 	}
@@ -259,7 +288,33 @@ Route::get('(:all)', function($uri) {
 		return Response::redirect($page->redirect);
 	}
 
-	Registry::set('page', $page);
+  if($page->display_posts == 0 || $page->allowed_categories == ''){
+    Registry::set('page', $page);
+    return new Template('page');
+  } else {
+    if($offset > 0) {
+      list($total, $posts) = Post::find_by_categories($page->allowed_categories, $offset, $per_page = Config::meta('posts_per_page'));
+    } else {
+      return Response::create(new Template('404'), 404);
+    }
 
-	return new Template('page');
+    // get the last page
+    $max_page = ($total > $per_page) ? ceil($total / $per_page) : 1;
+
+    // stop users browsing to non existing ranges
+    if(($offset > $max_page) or ($offset < 1)) {
+      return Response::create(new Template('404'), 404);
+    }
+
+    $posts = new Items($posts);
+
+    Registry::set('posts', $posts);
+    Registry::set('total_posts', $total);
+    Registry::set('page', $page);
+    Registry::set('page_offset', $offset);
+
+    return new Template('posts');
+  }
+
 });
+

@@ -72,7 +72,7 @@ Route::collection(array('before' => 'auth,csrf'), function() {
 	});
 
 	Route::post('admin/pages/edit/(:num)', function($id) {
-		$input = Input::get(array('parent', 'name', 'title', 'slug', 'content', 'status', 'redirect', 'show_in_menu'));
+		$input = Input::get(array('parent', 'name', 'title', 'slug', 'content', 'status', 'redirect', 'show_in_menu', 'display_posts', 'allowed_categories'));
 
 		// if there is no slug try and create one from the title
 		if(empty($input['slug'])) {
@@ -120,6 +120,13 @@ Route::collection(array('before' => 'auth,csrf'), function() {
 		$input['title'] = e($input['title'], ENT_COMPAT);
 
 		$input['show_in_menu'] = is_null($input['show_in_menu']) ? 0 : 1;
+		$input['display_posts'] = is_null($input['display_posts']) ? 0 : 1;
+
+    if(is_array($input['allowed_categories'])){
+      $input['allowed_categories'] = implode(',', array_keys($input['allowed_categories']));
+    }else{
+      $input['allowed_categories'] = '';
+    }
 
 		Page::update($id, $input);
 
@@ -155,7 +162,7 @@ Route::collection(array('before' => 'auth,csrf'), function() {
 
 	Route::post('admin/pages/add', function() {
 		$input = Input::get(array('parent', 'name', 'title', 'slug', 'content',
-			'status', 'redirect', 'show_in_menu'));
+			'status', 'redirect', 'show_in_menu', 'display_posts', 'allowed_categories'));
 
 		// if there is no slug try and create one from the title
 		if(empty($input['slug'])) {
@@ -200,6 +207,13 @@ Route::collection(array('before' => 'auth,csrf'), function() {
 		}
 
 		$input['show_in_menu'] = is_null($input['show_in_menu']) ? 0 : 1;
+    $input['display_posts'] = is_null($input['display_posts']) ? 0 : 1;
+    
+    if(is_array($input['allowed_categories'])){
+      $input['allowed_categories'] = implode(',', array_keys($input['allowed_categories']));
+    }else{
+      $input['allowed_categories'] = '';
+    }
 
 		$page = Page::create($input);
 

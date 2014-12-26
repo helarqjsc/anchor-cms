@@ -286,3 +286,26 @@ select {
 	.split + .buttons button:first-child {
 		margin: 20px 15px 20px 160px;
 	}
+
+  .clear{
+    clear: both;
+  }
+
+  .allowed_categories_wrap{
+    display: inline-block;
+  }
+
+  .allowed_categories_wrap input{
+    border-radius: 0 5px 5px 0;
+    float: left;
+    height: 39px;
+  }
+
+  .allowed_categories_wrap .allowed_categories_label{
+    background: none;
+  }
+
+  .split .allowed_categories_label_main{
+    max-width: 124px;
+    padding-right: 0;
+  }

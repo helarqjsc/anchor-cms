@@ -277,6 +277,24 @@ class Query extends Builder {
 	}
 
 	/**
+	 * Add a where clause to the query starting with IN
+	 *
+	 * @param string
+	 * @param array
+	 * @return object
+	 */
+	public function and_where_in($column, $values) {
+		$this->where[] = (count($this->where) ? 'AND ' : 'WHERE ') .
+			$this->wrap($column) . ' IN (' . $this->placeholders(count($values)) . ')';
+
+		$this->bind = array_merge($this->bind, $values);
+
+		return $this;
+	}
+
+	
+
+	/**
 	 * Add a table join to the query
 	 *
 	 * @param string|function

@@ -4,17 +4,17 @@ class Category extends Base {
 
 	public static $table = 'categories';
 
-	public static function dropdown() {
-		$items = array();
+  public static function dropdown() {
+    $items = array();
 
-		foreach(static::get() as $item) {
-			$items[$item->id] = $item->title;
-		}
+    foreach(static::get() as $item) {
+      $items[$item->id] = $item->title;
+    }
 
-		return $items;
-	}
+    return $items;
+  }
 
-	public static function slug($slug) {
+  public static function slug($slug) {
 		return static::where('slug', 'like', $slug)->fetch();
 	}
 

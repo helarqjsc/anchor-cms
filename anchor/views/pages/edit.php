@@ -82,6 +82,16 @@
 				<?php echo Extend::html($field); ?>
 			</p>
 			<?php endforeach; ?>
+
+      <p>
+        <label>Display Posts:</label>
+        <?php echo Form::checkbox('display_posts', 1, Input::previous('display_posts', $page->display_posts) == 1); ?>
+        <em> </em>
+      </p>
+
+      <label class="allowed_categories_label_main">Allowed Categories:</label>
+      <?php echo Form::allowed_categories($page->allowed_categories); ?>
+
 		</div>
 	</fieldset>
 </form>
